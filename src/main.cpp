@@ -41,8 +41,9 @@ void setup() {
     Serial.println("DFPlayerMini initialized.");
 
     // Set default volume and play the first track.
-    player.volume(20);
-    player.play(1);
+    player.volume(10);
+    player.play();
+    player.next();
 }
 
 void loop() {

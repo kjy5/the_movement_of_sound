@@ -5,7 +5,7 @@
 #ifndef PINS_H
 #define PINS_H
 
-#define SPEAKER_RX 4
-#define SPEAKER_TX 5
+#define SPEAKER_RX 10
+#define SPEAKER_TX 11
 
 #endif //PINS_H
