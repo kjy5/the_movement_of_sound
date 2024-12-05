@@ -16,6 +16,11 @@
 void setServos(uint8_t angle);
 
 /**
+ * Detach the servos.
+ */
+void detachServos();
+
+/**
  * Interpret player state values and print to serial.
  * 
  * @param type Player state type.

@@ -35,6 +35,9 @@ unsigned long last_rotation = 0;
 
 // Rotate state.
 bool rotate_state = false;
+int rotation_direction = 1;
+bool need_detach = false;
+unsigned long detach_time = 0;
 
 void setup() {
     // Initialize serial.
@@ -71,10 +74,6 @@ void loop() {
     const bool prev_pressed = digitalRead(PREV_BUTTON) == HIGH;
     const bool rotate_pressed = digitalRead(ROTATE_BUTTON) == HIGH;
 
-    Serial.println(
-        "Next pressed: " + String(next_pressed) + ", Prev pressed: " + String(prev_pressed) + ", Rotate pressed: " +
-        String(rotate_pressed));
-
     // Advance track on next button press.
     if (next_pressed) {
         player.next();
@@ -99,28 +98,49 @@ void loop() {
         last_volume_update = millis();
     }
 
+    // Rotate servos if time has passed.
+    if (rotate_state && millis() - last_rotation > ROTATION_INTERVAL) {
+        setServos(90 + rotation_direction * ROTATION_AMOUNT);
+        rotation_direction *= -1;
+        last_rotation = millis();
+    }
+
+    // Detach servo if time has passed.
+    if (need_detach && millis() > detach_time) {
+        // Reset to 90 degrees.
+        left_servo.write(90);
+        right_servo.write(90);
+
+        // Detach.
+        detachServos();
+    }
+
     // Print player state.
     // if (player.available()) {
     //     printDetail(player.readType(), player.read());
     // }
 }
 
-void setServos(uint8_t angle) {
+void setServos(const uint8_t angle) {
     // Attach.
     left_servo.attach(LEFT_SERVO);
     right_servo.attach(RIGHT_SERVO);
 
     // Write.
-    left_servo.write(90);
-    right_servo.write(90);
+    left_servo.write(angle);
+    right_servo.write(angle);
 
-    // Wait for the servo to move.
-    delay(500);
+    // Set detach time.
+    detach_time = millis() + 250;
+    need_detach = true;
+}
 
-    // Detach.
+void detachServos() {
     left_servo.detach();
     right_servo.detach();
+    need_detach = false;
 }
+
 
 void printDetail(uint8_t type, uint16_t value) {
     switch (type) {
