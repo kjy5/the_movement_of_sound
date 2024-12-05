@@ -7,12 +7,12 @@
  **/
 
 // Libraries.
-#include <Arduino.h>
 #include "DFRobotDFPlayerMini.h"
 #include <SoftwareSerial.h>
 #include <Servo.h>
 
 // My libraries.
+#include "main.h"
 #include "pins.h"
 #include "constants.h"
 
@@ -30,7 +30,11 @@ Servo right_servo;
 // Last volume update time.
 unsigned long last_volume_update = 0;
 
-void printDetail(uint8_t type, uint16_t value);
+// Last rotation time.
+unsigned long last_rotation = 0;
+
+// Rotate state.
+bool rotate_state = false;
 
 void setup() {
     // Initialize serial.
@@ -51,14 +55,8 @@ void setup() {
     pinMode(ROTATE_BUTTON, INPUT_PULLUP);
     pinMode(VOLUME_POT, INPUT);
 
-    // Attach servos.
-    left_servo.attach(LEFT_SERVO);
-    right_servo.attach(RIGHT_SERVO);
-    left_servo.write(20);
-    right_servo.write(20);
-    delay(1000);
-    left_servo.detach();
-    right_servo.detach();
+    // Reset servos.
+    setServos(90);
 
     // Set default volume and play the first track.
     player.volume(50);
@@ -69,13 +67,32 @@ void setup() {
 void loop() {
     // Get states.
     const uint8_t volume = map(analogRead(VOLUME_POT), 0, 1023, 0, 100);
-    const uint8_t next_state = digitalRead(NEXT_BUTTON);
-    const uint8_t prev_state = digitalRead(PREV_BUTTON);
-    const uint8_t rotate_state = digitalRead(ROTATE_BUTTON);
-    const uint8_t left_angle = left_servo.read();
-    const uint8_t right_angle = right_servo.read();
+    const bool next_pressed = digitalRead(NEXT_BUTTON) == HIGH;
+    const bool prev_pressed = digitalRead(PREV_BUTTON) == HIGH;
+    const bool rotate_pressed = digitalRead(ROTATE_BUTTON) == HIGH;
 
-    Serial.println("Left: " + String(left_angle) + " Right: " + String(right_angle));
+    Serial.println(
+        "Next pressed: " + String(next_pressed) + ", Prev pressed: " + String(prev_pressed) + ", Rotate pressed: " +
+        String(rotate_pressed));
+
+    // Advance track on next button press.
+    if (next_pressed) {
+        player.next();
+        delay(250);
+    }
+
+    // Go back a track on prev button press.
+    if (prev_pressed) {
+        player.previous();
+        delay(250);
+    }
+
+    // Toggle rotate state on rotate button press.
+    if (rotate_pressed) {
+        rotate_state = !rotate_state;
+        delay(250);
+    }
+
     // Update volume if time has passed.
     if (millis() - last_volume_update > VOLUME_UPDATE_INTERVAL) {
         player.volume(volume);
@@ -86,6 +103,23 @@ void loop() {
     // if (player.available()) {
     //     printDetail(player.readType(), player.read());
     // }
+}
+
+void setServos(uint8_t angle) {
+    // Attach.
+    left_servo.attach(LEFT_SERVO);
+    right_servo.attach(RIGHT_SERVO);
+
+    // Write.
+    left_servo.write(90);
+    right_servo.write(90);
+
+    // Wait for the servo to move.
+    delay(500);
+
+    // Detach.
+    left_servo.detach();
+    right_servo.detach();
 }
 
 void printDetail(uint8_t type, uint16_t value) {
