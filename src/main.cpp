@@ -9,18 +9,14 @@
 // Libraries.
 #include <Arduino.h>
 #include "DFRobotDFPlayerMini.h"
+#include <SoftwareSerial.h>
 
 // My libraries.
 #include "pins.h"
 
-// Define serial based on the board.
-#if defined(ARDUINO_AVR_UNO)
-#include <SoftwareSerial.h>
+// Use SoftwareSerial to communicate with the DFPlayerMini.
 SoftwareSerial softSerial(SPEAKER_RX, SPEAKER_TX);
 #define FPSerial softSerial
-#else
-#define FPSerial Serial1
-#endif
 
 // Declare DFPlayerMini.
 DFRobotDFPlayerMini player;
@@ -41,7 +37,7 @@ void setup() {
     Serial.println("DFPlayerMini initialized.");
 
     // Set default volume and play the first track.
-    player.volume(10);
+    player.volume(30);
     player.play();
     player.next();
 }
