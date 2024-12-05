@@ -60,6 +60,9 @@ void setup() {
 
     // Reset servos.
     setServos(90);
+    delay(ROTATION_TIME);
+    detachServos();
+    
 
     // Set default volume and play the first track.
     player.volume(50);
@@ -77,11 +80,13 @@ void loop() {
     // Advance track on next button press.
     if (next_pressed) {
         player.next();
+        player.next();
         delay(250);
     }
 
     // Go back a track on prev button press.
     if (prev_pressed) {
+        player.previous();
         player.previous();
         delay(250);
     }
@@ -131,7 +136,7 @@ void setServos(const uint8_t angle) {
     right_servo.write(angle);
 
     // Set detach time.
-    detach_time = millis() + 250;
+    detach_time = millis() + ROTATION_TIME;
     need_detach = true;
 }
 

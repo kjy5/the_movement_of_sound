@@ -9,5 +9,6 @@
 #define ROTATION_INTERVAL 1000
 
 #define ROTATION_AMOUNT 5
+#define ROTATION_TIME 250
 
 #endif //CONSTANTS_H
