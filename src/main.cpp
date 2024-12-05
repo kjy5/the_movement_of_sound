@@ -13,6 +13,7 @@
 
 // My libraries.
 #include "pins.h"
+#include "constants.h"
 
 // Use SoftwareSerial to communicate with the DFPlayerMini.
 SoftwareSerial softSerial(SPEAKER_RX, SPEAKER_TX);
@@ -20,6 +21,9 @@ SoftwareSerial softSerial(SPEAKER_RX, SPEAKER_TX);
 
 // Declare DFPlayerMini.
 DFRobotDFPlayerMini player;
+
+// Last volume update time.
+unsigned long last_volume_update = 0;
 
 void printDetail(uint8_t type, uint16_t value);
 
@@ -36,17 +40,39 @@ void setup() {
     }
     Serial.println("DFPlayerMini initialized.");
 
+    // Setup pins.
+    pinMode(NEXT_BUTTON, INPUT_PULLUP);
+    pinMode(PREV_BUTTON, INPUT_PULLUP);
+    pinMode(ROTATE_BUTTON, INPUT_PULLUP);
+    pinMode(VOLUME_POT, INPUT);
+
     // Set default volume and play the first track.
-    player.volume(30);
+    player.volume(50);
     player.play();
     player.next();
 }
 
 void loop() {
-    // Print player state.
-    if (player.available()) {
-        printDetail(player.readType(), player.read());
+    // Get states.
+    const uint8_t volume = map(analogRead(VOLUME_POT), 0, 1023, 0, 100);
+    const uint8_t next_state = digitalRead(NEXT_BUTTON);
+    const uint8_t prev_state = digitalRead(PREV_BUTTON);
+    const uint8_t rotate_state = digitalRead(ROTATE_BUTTON);
+
+    Serial.println(
+        "Next: " + String(next_state) + "; Prev: " + String(prev_state) + "; Rotate: " + String(rotate_state) +
+        "; Volume: " + String(volume));
+    
+    // Update volume if time has passed.
+    if (millis() - last_volume_update > VOLUME_UPDATE_INTERVAL) {
+        player.volume(volume);
+        last_volume_update = millis();
     }
+
+    // Print player state.
+    // if (player.available()) {
+    //     printDetail(player.readType(), player.read());
+    // }
 }
 
 void printDetail(uint8_t type, uint16_t value) {

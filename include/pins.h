@@ -8,4 +8,10 @@
 #define SPEAKER_RX 10
 #define SPEAKER_TX 11
 
+#define NEXT_BUTTON 2
+#define PREV_BUTTON 3
+#define ROTATE_BUTTON 4
+
+#define VOLUME_POT A0
+
 #endif //PINS_H
