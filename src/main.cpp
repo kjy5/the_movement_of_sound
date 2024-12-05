@@ -80,13 +80,11 @@ void loop() {
     // Advance track on next button press.
     if (next_pressed) {
         player.next();
-        player.next();
         delay(250);
     }
 
     // Go back a track on prev button press.
     if (prev_pressed) {
-        player.previous();
         player.previous();
         delay(250);
     }
