@@ -14,4 +14,7 @@
 
 #define VOLUME_POT A0
 
+#define LEFT_SERVO 5
+#define RIGHT_SERVO 6
+
 #endif //PINS_H

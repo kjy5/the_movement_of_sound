@@ -10,6 +10,7 @@
 #include <Arduino.h>
 #include "DFRobotDFPlayerMini.h"
 #include <SoftwareSerial.h>
+#include <Servo.h>
 
 // My libraries.
 #include "pins.h"
@@ -21,6 +22,10 @@ SoftwareSerial softSerial(SPEAKER_RX, SPEAKER_TX);
 
 // Declare DFPlayerMini.
 DFRobotDFPlayerMini player;
+
+// Declare servos.
+Servo left_servo;
+Servo right_servo;
 
 // Last volume update time.
 unsigned long last_volume_update = 0;
@@ -46,6 +51,15 @@ void setup() {
     pinMode(ROTATE_BUTTON, INPUT_PULLUP);
     pinMode(VOLUME_POT, INPUT);
 
+    // Attach servos.
+    left_servo.attach(LEFT_SERVO);
+    right_servo.attach(RIGHT_SERVO);
+    left_servo.write(20);
+    right_servo.write(20);
+    delay(1000);
+    left_servo.detach();
+    right_servo.detach();
+
     // Set default volume and play the first track.
     player.volume(50);
     player.play();
@@ -58,11 +72,10 @@ void loop() {
     const uint8_t next_state = digitalRead(NEXT_BUTTON);
     const uint8_t prev_state = digitalRead(PREV_BUTTON);
     const uint8_t rotate_state = digitalRead(ROTATE_BUTTON);
+    const uint8_t left_angle = left_servo.read();
+    const uint8_t right_angle = right_servo.read();
 
-    Serial.println(
-        "Next: " + String(next_state) + "; Prev: " + String(prev_state) + "; Rotate: " + String(rotate_state) +
-        "; Volume: " + String(volume));
-    
+    Serial.println("Left: " + String(left_angle) + " Right: " + String(right_angle));
     // Update volume if time has passed.
     if (millis() - last_volume_update > VOLUME_UPDATE_INTERVAL) {
         player.volume(volume);
